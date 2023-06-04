@@ -1,12 +1,12 @@
 
 //local storage to store 
-if (localStorage.getItem("favouritesList") == null) {
-    localStorage.setItem("favouritesList", JSON.stringify([]));
+if (localStorage.getItem("choices") == null) {
+    localStorage.setItem("choices", JSON.stringify([]));
 }
 
 
 // fetch your meal and return
-async function fetchMealsFromApi(url, value) {
+async function displayMealswithAPI(url, value) {
     const response = await fetch(`${url + value}`);
     const meals = await response.json();
     return meals;
@@ -15,10 +15,10 @@ async function fetchMealsFromApi(url, value) {
 // displaying your meal according to your search
 function showMealList() {
     let inputValue = document.getElementById("my-search").value;
-    let arr = JSON.parse(localStorage.getItem("favouritesList"));
+    let arr = JSON.parse(localStorage.getItem("choices"));
     let url = "https://www.themealdb.com/api/json/v1/1/search.php?s=";
     let html = "";
-    let meals = fetchMealsFromApi(url, inputValue);
+    let meals = displayMealswithAPI(url, inputValue);
     meals.then(data => {
         if (data.meals) {
             data.meals.forEach((element) => {
@@ -31,12 +31,12 @@ function showMealList() {
                 if (isFav) {
                     html += `
                 <div id="card" class="card mb-3" style="width: 20rem;">
-                    <img src="${element.strMealThumb}" class="card-img-top" alt="...">
+                    <img src="${element.strMealThumb}" class="card-img-top" alt="img">
                     <div class="card-body">
                         <h5 class="card-title">${element.strMeal}</h5>
                         <div class="d-flex justify-content-between mt-5">
                             <button type="button" class="btn btn-outline-light" onclick="showMealDetails(${element.idMeal})" target="_blank">More Details</button>
-                            <button id="main${element.idMeal}" class="btn btn-outline-light active" onclick="addRemoveToFavList(${element.idMeal})" style="border-radius:50%"><i class="fa-solid fa-heart"></i></button>
+                            <button id="main${element.idMeal}" class="btn btn-outline-light active" onclick="removeButton(${element.idMeal})" style="border-radius:50%"><i class="fa-solid fa-heart"></i></button>
                         </div>
                     </div>
                 </div>
@@ -44,12 +44,12 @@ function showMealList() {
                 } else {
                     html += `
                 <div id="card" class="card mb-3" style="width: 20rem;">
-                    <img src="${element.strMealThumb}" class="card-img-top" alt="...">
+                    <img src="${element.strMealThumb}" class="card-img-top" alt="img">
                     <div class="card-body">
                         <h5 class="card-title">${element.strMeal}</h5>
                         <div class="d-flex justify-content-between mt-5">
                             <button type="button" class="btn btn-outline-light" onclick="showMealDetails(${element.idMeal})">More Details</button>
-                            <button id="main${element.idMeal}" class="btn btn-outline-light" onclick="addRemoveToFavList(${element.idMeal})" style="border-radius:50%"><i class="fa-solid fa-heart"></i></button>
+                            <button id="main${element.idMeal}" class="btn btn-outline-light" onclick="removeButton(${element.idMeal})" style="border-radius:50%"><i class="fa-solid fa-heart"></i></button>
                         </div>
                     </div>
                 </div>
@@ -76,11 +76,11 @@ function showMealList() {
     });
 }
 
-//its shows full meal details in main
+//its shows full meal details in main menu
 async function showMealDetails(id) {
     let url = "https://www.themealdb.com/api/json/v1/1/lookup.php?i=";
     let html = "";
-    await fetchMealsFromApi(url, id).then(data => {
+    await displayMealswithAPI(url, id).then(data => {
         html += `
           <div id="meal-details" class="mb-5">
             <div id="meal-header" class="d-flex justify-content-around flex-wrap">
@@ -98,7 +98,7 @@ async function showMealDetails(id) {
               <p>${data.meals[0].strInstructions}</p>
             </div>
             <div class="text-center">
-              <a href="${data.meals[0].strYoutube}" target="_blank" class="btn btn-outline-light mt-3">Watch Video</a>
+              <a href="${data.meals[0].strYoutube}" target="_blank" class="btn btn-outline-light mt-3">Watch on youtube</a>
             </div>
           </div>
         `;
@@ -108,7 +108,7 @@ async function showMealDetails(id) {
 
 // its shows all favourites meals in favourites body
 async function showFavMealList() {
-    let arr = JSON.parse(localStorage.getItem("favouritesList"));
+    let arr = JSON.parse(localStorage.getItem("choices"));
     let url = "https://www.themealdb.com/api/json/v1/1/lookup.php?i=";
     let html = "";
     if (arr.length == 0) {
@@ -127,15 +127,15 @@ async function showFavMealList() {
             `;
     } else {
         for (let index = 0; index < arr.length; index++) {
-            await fetchMealsFromApi(url, arr[index]).then(data => {
+            await displayMealswithAPI(url, arr[index]).then(data => {
                 html += `
                 <div id="card" class="card mb-3" style="width: 20rem;">
-                    <img src="${data.meals[0].strMealThumb}" class="card-img-top" alt="...">
+                    <img src="${data.meals[0].strMealThumb}" class="card-img-top" alt="img">
                     <div class="card-body">
                         <h5 class="card-title">${data.meals[0].strMeal}</h5>
                         <div class="d-flex justify-content-between mt-5">
                             <button type="button" class="btn btn-outline-light" onclick="showMealDetails(${data.meals[0].idMeal})">More Details</button>
-                            <button id="main${data.meals[0].idMeal}" class="btn btn-outline-light active" onclick="addRemoveToFavList(${data.meals[0].idMeal})" style="border-radius:50%"><i class="fa-solid fa-heart"></i></button>
+                            <button id="main${data.meals[0].idMeal}" class="btn btn-outline-light active" onclick="removeButton(${data.meals[0].idMeal})" style="border-radius:50%"><i class="fa-solid fa-heart"></i></button>
                         </div>
                     </div>
                 </div>
@@ -143,12 +143,12 @@ async function showFavMealList() {
             });
         }
     }
-    document.getElementById("favourites-body").innerHTML = html;
+    document.getElementById("myFav").innerHTML = html;
 }
 
 //it adds and remove meals to favourites list
-function addRemoveToFavList(id) {
-    let arr = JSON.parse(localStorage.getItem("favouritesList"));
+function removeButton(id) {
+    let arr = JSON.parse(localStorage.getItem("choices"));
     let contain = false;
     for (let index = 0; index < arr.length; index++) {
         if (id == arr[index]) {
@@ -163,7 +163,7 @@ function addRemoveToFavList(id) {
         arr.push(id);
         alert("your meal add your favourites list");
     }
-    localStorage.setItem("favouritesList", JSON.stringify(arr));
+    localStorage.setItem("choices", JSON.stringify(arr));
     showMealList();
     showFavMealList();
 }
