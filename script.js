@@ -1,7 +1,9 @@
+
 //local storage to store 
 if (localStorage.getItem("favouritesList") == null) {
     localStorage.setItem("favouritesList", JSON.stringify([]));
 }
+
 
 // fetch your meal and return
 async function fetchMealsFromApi(url, value) {
@@ -144,7 +146,7 @@ async function showFavMealList() {
     document.getElementById("favourites-body").innerHTML = html;
 }
 
-//its adds and remove meals to favourites list
+//it adds and remove meals to favourites list
 function addRemoveToFavList(id) {
     let arr = JSON.parse(localStorage.getItem("favouritesList"));
     let contain = false;
